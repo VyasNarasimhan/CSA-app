@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useState } from 'react';
 import { AsyncStorage, Button, FlatList, SectionList, StyleSheet, Text, View } from 'react-native';
-import HelloWorld from './HelloWorld.js';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 var allReminders = null;
 getAllReminders();
@@ -14,7 +14,19 @@ export default function Reminders({navigation}) {
                 {title: 'Pinned', data: allReminders.pin},
                 {title: 'Unpinned', data: allReminders.unpin}
             ]}
-            renderItem={({item}) => <View><Text style={styles.item}>{item.text}</Text><Text style={styles.dateDisplay}>{item.date}</Text></View>}
+            renderItem={({item}) => 
+                <View style={{paddingVertical: 15,
+                    paddingHorizontal: 10,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center", 
+                    borderBottomWidth: StyleSheet.hairlineWidth}}>
+                    <View>
+                        <Text style={styles.item}>{item.text}</Text>
+                        <Text style={styles.dateDisplay}>{item.date}</Text>
+                    </View>
+                    <Icon name="star" size={50} color={getColor(item)} style={{margin: 10}} onPress= {() => { changePinStatus(item); navigation.reset({index: 1, routes: [{name: "Home"}, {name: "Reminders"}],}) }}/>
+                </View>}
             renderSectionHeader={({section}) => <Text style={styles.sectionHeader}>{section.title}</Text>}
             keyExtractor={item => item.id.toString()}
         />
@@ -53,10 +65,17 @@ const styles = StyleSheet.create({
   }
 });
 
+function getColor(reminder) {
+    if (reminder.pinned) {
+        return "#000";
+    } else {
+        return "#fff";
+    }
+}
+
 async function getAllReminders() {
     pinned = [];
     unpinned = [];
-    //const reminders = db.getAllReminders();
     AsyncStorage.getItem('reminders').then(result => {
         reminders = JSON.parse(result);
         for (reminder of reminders) {
@@ -70,4 +89,34 @@ async function getAllReminders() {
     }).catch(err => {
         console.log(err);
     });
-  }
+}
+
+async function changePinStatus(reminder) {
+    id = reminder.id;
+    done = false;
+    for (var i = 0; i < allReminders.pin.length; i++) {
+        if (allReminders.pin[i].id == id) {
+            allReminders.pin[i].pinned = !allReminders.pin[i].pinned;
+            allReminders.unpin.push(allReminders.pin[i]);
+            allReminders.pin.splice(i, 1);
+            done = true;
+            break;
+        }
+    }
+    if (!done) {
+        for (var i = 0; i < allReminders.unpin.length; i++) {
+            if (allReminders.unpin[i].id == id) {
+                allReminders.unpin[i].pinned = !allReminders.unpin[i].pinned;
+                allReminders.pin.push(allReminders.unpin[i]);
+                allReminders.unpin.splice(i, 1);
+                break;
+            }
+        }
+    }
+    const both = allReminders.pin.concat(allReminders.unpin);
+    try {
+        await AsyncStorage.setItem('reminders', JSON.stringify(both));
+    } catch (error) {
+        console.log(1);
+    }
+}
