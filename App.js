@@ -1,12 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
+import { AsyncStorage, Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Reminders from './Reminders.js'; 
 import HelloWorld from './HelloWorld.js';
 
 const Stack = createStackNavigator();
+setup();
 
 export default function App() {
   return (
@@ -32,6 +33,26 @@ const List = ({navigation}) => {
       />
     </View>
   );
+}
+
+async function setup() {
+  try {
+      const temp = await AsyncStorage.getItem('reminders')
+      if (temp === null) {
+          try {
+              await AsyncStorage.setItem('reminders', JSON.stringify([{
+                  "id": 0,
+                  "text": "hello",
+                  "pinned": false,
+                  "date": "2021-05-24 18:36:00"
+              }]));
+          } catch (error) {
+              console.log(1);
+          }
+      }
+  } catch (error1) {
+      console.log(2);
+  }
 }
 
 const styles = StyleSheet.create({
