@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Reminders from './Reminders.js'; 
 import HelloWorld from './HelloWorld.js';
+import SingleReminder from './SingleReminder.js';
 
 const Stack = createStackNavigator();
 setup();
@@ -15,6 +16,7 @@ export default function App() {
       <Stack.Navigator>
         <Stack.Screen name="Home" component={List} />
         <Stack.Screen name="Reminders" component={Reminders} />
+        <Stack.Screen name="SingleReminder" component={SingleReminder} />
       </Stack.Navigator>
     </NavigationContainer>
   );

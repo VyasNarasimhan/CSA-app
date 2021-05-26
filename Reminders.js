@@ -6,9 +6,19 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 var allReminders = null;
 getAllReminders();
 
-export default function Reminders({navigation}) {
+export default function Reminders({route, navigation}) {
+    if (route.params != null) {
+        allReminders.pin = route.params.pin;
+        allReminders.unpin = route.params.unpin;
+    } else {
+        ids = allReminders.pin.map(object => object.id);
+        allReminders.pin = allReminders.pin.filter(({id}, index) => !ids.includes(id, index+1));
+        ids = allReminders.unpin.map(object => object.id);
+        allReminders.unpin = allReminders.unpin.filter(({id}, index) => !ids.includes(id, index+1));
+    }
     return (
         <View style={styles.listContainer}>
+            <Button title="New Reminder" onPress={() => navigation.push("SingleReminder", {reminder: {"id": null, "text": "", "pinned": false, "date": ""}})} />
         <SectionList
             sections = {[
                 {title: 'Pinned', data: allReminders.pin},
@@ -25,7 +35,7 @@ export default function Reminders({navigation}) {
                         <Text style={styles.item}>{item.text}</Text>
                         <Text style={styles.dateDisplay}>{item.date}</Text>
                     </View>
-                    <Icon name="star" size={50} color={getColor(item)} style={{margin: 10}} onPress= {() => { changePinStatus(item); navigation.reset({index: 1, routes: [{name: "Home"}, {name: "Reminders"}],}) }}/>
+                    <Icon name="edit" size={50} color="#000" style={{margin: 10}} onPress= {() => { navigation.push("SingleReminder", {reminder: item, reminders: allReminders}) }}/>
                 </View>}
             renderSectionHeader={({section}) => <Text style={styles.sectionHeader}>{section.title}</Text>}
             keyExtractor={item => item.id.toString()}
@@ -56,7 +66,7 @@ const styles = StyleSheet.create({
   },
   item: {
     padding: 10,
-    fontSize: 18,
+    fontSize: 25,
     height: 44,
   },
   dateDisplay: {
@@ -89,34 +99,4 @@ async function getAllReminders() {
     }).catch(err => {
         console.log(err);
     });
-}
-
-async function changePinStatus(reminder) {
-    id = reminder.id;
-    done = false;
-    for (var i = 0; i < allReminders.pin.length; i++) {
-        if (allReminders.pin[i].id == id) {
-            allReminders.pin[i].pinned = !allReminders.pin[i].pinned;
-            allReminders.unpin.push(allReminders.pin[i]);
-            allReminders.pin.splice(i, 1);
-            done = true;
-            break;
-        }
-    }
-    if (!done) {
-        for (var i = 0; i < allReminders.unpin.length; i++) {
-            if (allReminders.unpin[i].id == id) {
-                allReminders.unpin[i].pinned = !allReminders.unpin[i].pinned;
-                allReminders.pin.push(allReminders.unpin[i]);
-                allReminders.unpin.splice(i, 1);
-                break;
-            }
-        }
-    }
-    const both = allReminders.pin.concat(allReminders.unpin);
-    try {
-        await AsyncStorage.setItem('reminders', JSON.stringify(both));
-    } catch (error) {
-        console.log(1);
-    }
 }
