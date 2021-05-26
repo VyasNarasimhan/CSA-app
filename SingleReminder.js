@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { AsyncStorage, Button, TextInput, StyleSheet, Text, View } from 'react-native';
-import { CheckBox } from 'react-native-elements'
+import { CheckBox } from 'react-native-elements';
 
 var allReminders = null;
 getAllReminders();
@@ -23,24 +23,30 @@ export default function SingleReminder({route, navigation}) {
                 id = allReminders.unpin[i].id;
             }
         }
+        for (var i = 0; i < allReminders.done.length; i++) {
+            if (allReminders.done[i].id > id) {
+                id = allReminders.done[i].id;
+            }
+        }
         id++;
         if (pinned) {
-            allReminders.pin.push({"id": id, "text": text, "pinned": pinned, "date": date});
+            allReminders.pin.push({"id": id, "text": text, "pinned": pinned, "date": date, "done": false});
         } else {
-            allReminders.unpin.push({"id": id, "text": text, "pinned": pinned, "date": date});
+            allReminders.unpin.push({"id": id, "text": text, "pinned": pinned, "date": date, "done": false});
         }
         ids = allReminders.pin.map(object => object.id);
         allReminders.pin = allReminders.pin.filter(({id}, index) => !ids.includes(id, index+1));
         ids = allReminders.unpin.map(object => object.id);
         allReminders.unpin = allReminders.unpin.filter(({id}, index) => !ids.includes(id, index+1));
-        const both = allReminders.pin.concat(allReminders.unpin);
+        ids = allReminders.done.map(object => object.id);
+        allReminders.done = allReminders.done.filter(({id}, index) => !ids.includes(id, index+1));
+        const both = allReminders.pin.concat(allReminders.unpin.concat(allReminders.done));
         try {
             await AsyncStorage.setItem('reminders', JSON.stringify(both));
         } catch (error) {
             console.log(1);
         }
-        console.log(both);
-        navigation.reset({index: 1, routes: [{name: "Home"}, {name: "Reminders", params: {pin: allReminders.pin, unpin: allReminders.unpin}}],});
+        navigation.reset({index: 1, routes: [{name: "Home"}, {name: "Reminders", params: {pin: allReminders.pin, unpin: allReminders.unpin, done: allReminders.done}}],});    
     }
     const deleteReminder = async function() {
         if (reminder.id == null) {
@@ -60,18 +66,25 @@ export default function SingleReminder({route, navigation}) {
                 i--;
             }
         }
+        for (var i = 0; i < allReminders.done.length; i++) {
+            if (allReminders.done[i].id == id) {
+                allReminders.done.splice(i, 1);
+                i--;
+            }
+        }
         ids = allReminders.pin.map(object => object.id);
         allReminders.pin = allReminders.pin.filter(({id}, index) => !ids.includes(id, index+1));
         ids = allReminders.unpin.map(object => object.id);
         allReminders.unpin = allReminders.unpin.filter(({id}, index) => !ids.includes(id, index+1));
-        const both = allReminders.pin.concat(allReminders.unpin);
+        ids = allReminders.done.map(object => object.id);
+        allReminders.done = allReminders.done.filter(({id}, index) => !ids.includes(id, index+1));
+        const both = allReminders.pin.concat(allReminders.unpin.concat(allReminders.done));
         try {
             await AsyncStorage.setItem('reminders', JSON.stringify(both));
         } catch (error) {
             console.log(1);
         }
-        console.log(both);
-        navigation.reset({index: 1, routes: [{name: "Home"}, {name: "Reminders", params: {pin: allReminders.pin, unpin: allReminders.unpin}}],});
+        navigation.reset({index: 1, routes: [{name: "Home"}, {name: "Reminders", params: {pin: allReminders.pin, unpin: allReminders.unpin, done: allReminders.done}}],});
     }
     const saveReminder = async function() {
         if (reminder.id == null) {
@@ -79,7 +92,7 @@ export default function SingleReminder({route, navigation}) {
             return;
         }
         id = reminder.id;
-        newReminder = {"id": id, "text": text, "pinned": pinned, "date": date};
+        newReminder = {"id": id, "text": text, "pinned": pinned, "date": date, "done": reminder.done};
         var done = false;
         for (var i = 0; i < allReminders.pin.length; i++) {
             if (allReminders.pin[i].id == id) {
@@ -93,10 +106,22 @@ export default function SingleReminder({route, navigation}) {
                 if (allReminders.unpin[i].id == id) {
                     allReminders.unpin.splice(i, 1);
                     i--;
+                    done = true;
                 }
             }
         }
-        if (pinned) {
+        if (!done) {
+            for (var i = 0; i < allReminders.done.length; i++) {
+                if (allReminders.done[i].id == id) {
+                    allReminders.done.splice(i, 1);
+                    i--;
+                    done = true;
+                }
+            }
+        }
+        if (reminder.done) {
+            allReminders.done.push(newReminder);
+        } else if (pinned) {
             allReminders.pin.push(newReminder);
         } else {
             allReminders.unpin.push(newReminder);
@@ -105,14 +130,15 @@ export default function SingleReminder({route, navigation}) {
         allReminders.pin = allReminders.pin.filter(({id}, index) => !ids.includes(id, index+1));
         ids = allReminders.unpin.map(object => object.id);
         allReminders.unpin = allReminders.unpin.filter(({id}, index) => !ids.includes(id, index+1));
-        const both = allReminders.pin.concat(allReminders.unpin);
+        ids = allReminders.done.map(object => object.id);
+        allReminders.done = allReminders.done.filter(({id}, index) => !ids.includes(id, index+1));
+        const both = allReminders.pin.concat(allReminders.unpin.concat(allReminders.done));
         try {
             await AsyncStorage.setItem('reminders', JSON.stringify(both));
         } catch (error) {
             console.log(1);
         }
-        console.log(allReminders.pin);
-        navigation.reset({index: 1, routes: [{name: "Home"}, {name: "Reminders", params: {pin: allReminders.pin, unpin: allReminders.unpin}}],});
+        navigation.reset({index: 1, routes: [{name: "Home"}, {name: "Reminders", params: {pin: allReminders.pin, unpin: allReminders.unpin, done: allReminders.done}}],});
     }
     return (
         <View style={styles.listContainer}>
@@ -173,16 +199,19 @@ const styles = StyleSheet.create({
 async function getAllReminders() {
     pinned = [];
     unpinned = [];
+    finished = [];
     AsyncStorage.getItem('reminders').then(result => {
         reminders = JSON.parse(result);
         for (reminder of reminders) {
-            if (reminder.pinned) {
-                pinned.push(reminder) ;
+            if (reminder.done) {
+                finished.push(reminder) ;
+            } else if (reminder.pinned) {
+                pinned.push(reminder);
             } else {
                 unpinned.push(reminder);
             }
         }
-        allReminders = {pin: pinned, unpin: unpinned};
+        allReminders = {pin: pinned, unpin: unpinned, done: finished};
     }).catch(err => {
         console.log(err);
     });
