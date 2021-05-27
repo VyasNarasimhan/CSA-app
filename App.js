@@ -42,7 +42,7 @@ async function setup() {
       const temp = await AsyncStorage.getItem('reminders')
       if (temp === null) {
           try {
-              await AsyncStorage.setItem('reminders', JSON.stringify([{}]));
+              await AsyncStorage.setItem('reminders', JSON.stringify([]));
           } catch (error) {
               console.log(1);
           }
