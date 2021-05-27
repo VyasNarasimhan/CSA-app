@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { RefreshControl, AsyncStorage, Button, FlatList, SectionList, StyleSheet, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { CheckBox } from 'react-native-elements';
+import moment from 'moment';
 
 var allReminders = null;
 getAllReminders();
@@ -50,7 +51,7 @@ export default function Reminders({route, navigation}) {
                     />
                     <View>
                         <Text style={styles.item}>{item.text}</Text>
-                        <Text style={styles.dateDisplay}>{item.date}</Text>
+                        <Text style={styles.dateDisplay}>{moment(item.date).format('dddd MMMM Do YYYY, HH:mm A')}</Text>
                     </View>
                     <Icon name="edit" size={40} color="#000" style={{margin: 10}} onPress= {() => { navigation.push("SingleReminder", {reminder: item, reminders: allReminders}) }}/>
                 </View>}

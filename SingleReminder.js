@@ -1,7 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { AsyncStorage, Button, TextInput, StyleSheet, Text, View } from 'react-native';
+import { AsyncStorage, Button, TextInput, StyleSheet, Text, View, Platform } from 'react-native';
 import { CheckBox } from 'react-native-elements';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import moment from 'moment';
 
 var allReminders = null;
 getAllReminders();
@@ -9,8 +11,23 @@ getAllReminders();
 export default function SingleReminder({route, navigation}) {
     const { reminder } = route.params;
     const [text, onChangeText] = useState(reminder.text);
-    const [date, onChangeDate] = useState(reminder.date);
+    var date = new Date();
+    var time = new Date();
+    if (reminder.date != '') {
+        date = reminder.date.split(' ')[0];
+        time = moment().format('YYYY-MM-DD') + ' ' + reminder.date.split(' ')[1];
+    }
+    const [reminderDate, setDate] = useState(new Date(moment(date)));
+    const [reminderTime, setTime] = useState(new Date(moment(time)));
     const [pinned, changePinned] = useState(reminder.pinned);
+    const onChangeDate = (event, selectedDate) => {
+        const currentDate = selectedDate || reminderDate;
+        setDate(currentDate);
+    };
+    const onChangeTime = (event, selectedDate) => {
+        const currentDate = selectedDate || reminderDate;
+        setTime(currentDate);
+    };
     const addReminder = async function() {
         var id = 0;
         for (var i = 0; i < allReminders.pin.length; i++) {
@@ -29,10 +46,12 @@ export default function SingleReminder({route, navigation}) {
             }
         }
         id++;
+        const date = moment(reminderDate, "YYYY-MM-DD");
+        const time = moment(reminderTime, "HH:mm");
         if (pinned) {
-            allReminders.pin.push({"id": id, "text": text, "pinned": pinned, "date": date, "done": false});
+            allReminders.pin.push({"id": id, "text": text, "pinned": pinned, "date": moment(reminderDate).format("YYYY-MM-DD") + ' ' + moment(reminderTime).format("HH:mm"), "done": false});
         } else {
-            allReminders.unpin.push({"id": id, "text": text, "pinned": pinned, "date": date, "done": false});
+            allReminders.unpin.push({"id": id, "text": text, "pinned": pinned, "date": moment(reminderDate).format("YYYY-MM-DD") + ' ' + moment(reminderTime).format("HH:mm"), "done": false});
         }
         ids = allReminders.pin.map(object => object.id);
         allReminders.pin = allReminders.pin.filter(({id}, index) => !ids.includes(id, index+1));
@@ -92,7 +111,7 @@ export default function SingleReminder({route, navigation}) {
             return;
         }
         id = reminder.id;
-        newReminder = {"id": id, "text": text, "pinned": pinned, "date": date, "done": reminder.done};
+        newReminder = {"id": id, "text": text, "pinned": pinned, "date": moment(reminderDate).format("YYYY-MM-DD") + ' ' + moment(reminderTime).format("HH:mm"), "done": reminder.done};
         var done = false;
         for (var i = 0; i < allReminders.pin.length; i++) {
             if (allReminders.pin[i].id == id) {
@@ -149,10 +168,17 @@ export default function SingleReminder({route, navigation}) {
                 value={text}
             />
             <Text style={{fontSize: 16, textAlign: 'center'}}>Date and Time</Text>
-            <TextInput
-                style={styles.dateInput}
-                onChangeText={onChangeDate}
-                value={date}
+            <DateTimePicker
+                value={reminderDate}
+                mode={'date'}
+                is24Hour={true}
+                onChange={onChangeDate}
+            />
+            <DateTimePicker
+                value={reminderTime}
+                mode={'time'}
+                is24Hour={true}
+                onChange={onChangeTime}
             />
             <CheckBox
                 center
@@ -185,13 +211,6 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     fontSize: 30,
-    textAlign: 'center',
-  },
-  dateInput: {
-    height: 60,
-    margin: 12,
-    borderWidth: 1,
-    fontSize: 24,
     textAlign: 'center',
   },
 });
