@@ -44,7 +44,8 @@ export default function Reminders({route, navigation}) {
                     flexDirection: "row",
                     justifyContent: "space-between",
                     alignItems: "center", 
-                    borderBottomWidth: StyleSheet.hairlineWidth}}>
+                    borderBottomWidth: StyleSheet.hairlineWidth,
+                    backgroundColor: item.color}}>
                     <CheckBox
                         checked={item.done}
                         onPress={() => { changeDone(item); refresh();}}

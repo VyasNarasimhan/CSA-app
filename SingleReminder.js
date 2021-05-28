@@ -20,6 +20,8 @@ export default function SingleReminder({route, navigation}) {
     const [reminderDate, setDate] = useState(new Date(moment(date)));
     const [reminderTime, setTime] = useState(new Date(moment(time)));
     const [pinned, changePinned] = useState(reminder.pinned);
+    const [color, setColor] = useState(reminder.color);
+    colors = {'#fc0303': "Red", '#fc7b03': 'Orange', '#fcf403': 'Yellow', '#69f505': 'Green', '#0575f5': 'Blue', '#a905f5': 'Purple'};
     const onChangeDate = (event, selectedDate) => {
         const currentDate = selectedDate || reminderDate;
         setDate(currentDate);
@@ -49,9 +51,9 @@ export default function SingleReminder({route, navigation}) {
         const date = moment(reminderDate, "YYYY-MM-DD");
         const time = moment(reminderTime, "HH:mm");
         if (pinned) {
-            allReminders.pin.push({"id": id, "text": text, "pinned": pinned, "date": moment(reminderDate).format("YYYY-MM-DD") + ' ' + moment(reminderTime).format("HH:mm"), "done": false});
+            allReminders.pin.push({"id": id, "text": text, "pinned": pinned, "date": moment(reminderDate).format("YYYY-MM-DD") + ' ' + moment(reminderTime).format("HH:mm"), "done": false, "color": color});
         } else {
-            allReminders.unpin.push({"id": id, "text": text, "pinned": pinned, "date": moment(reminderDate).format("YYYY-MM-DD") + ' ' + moment(reminderTime).format("HH:mm"), "done": false});
+            allReminders.unpin.push({"id": id, "text": text, "pinned": pinned, "date": moment(reminderDate).format("YYYY-MM-DD") + ' ' + moment(reminderTime).format("HH:mm"), "done": false, "color": color});
         }
         ids = allReminders.pin.map(object => object.id);
         allReminders.pin = allReminders.pin.filter(({id}, index) => !ids.includes(id, index+1));
@@ -111,7 +113,7 @@ export default function SingleReminder({route, navigation}) {
             return;
         }
         id = reminder.id;
-        newReminder = {"id": id, "text": text, "pinned": pinned, "date": moment(reminderDate).format("YYYY-MM-DD") + ' ' + moment(reminderTime).format("HH:mm"), "done": reminder.done};
+        newReminder = {"id": id, "text": text, "pinned": pinned, "date": moment(reminderDate).format("YYYY-MM-DD") + ' ' + moment(reminderTime).format("HH:mm"), "done": false, "color": color};
         var done = false;
         for (var i = 0; i < allReminders.pin.length; i++) {
             if (allReminders.pin[i].id == id) {
@@ -186,6 +188,15 @@ export default function SingleReminder({route, navigation}) {
                 checked={pinned}
                 onPress={() => changePinned(!pinned)}
             />
+            <Text style={{fontSize: 16, textAlign: 'center'}}>Color: {colors[color]}</Text>
+            <View style={{flexDirection:'row', flexWrap:'wrap'}}>
+                <Button title="Red" color="#fc0303" onPress={() => setColor('#fc0303')}/>
+                <Button title="Orange" color="#fc7b03" onPress={() => setColor('#fc7b03')}/>
+                <Button title="Yellow" color="#f5e105" onPress={() => setColor('#fcf403')}/>
+                <Button title="Green" color="#69f505" onPress={() => setColor('#69f505')}/>
+                <Button title="Blue" color="#0575f5" onPress={() => setColor('#0575f5')}/>
+                <Button title="Purple" color="#a905f5" onPress={() => setColor('#a905f5')}/>
+            </View>
             <Button
                 title="Save"
                 onPress={() => saveReminder()}
@@ -213,6 +224,16 @@ const styles = StyleSheet.create({
     fontSize: 30,
     textAlign: 'center',
   },
+  colorButtons:{
+    marginRight:40,
+    marginLeft:40,
+    marginTop:10,
+    paddingTop:10,
+    paddingBottom:10,
+    borderRadius:10,
+    borderWidth: 1,
+    borderColor: '#fff'
+  }
 });
 
 async function getAllReminders() {
