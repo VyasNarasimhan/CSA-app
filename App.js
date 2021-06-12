@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Reminders from './Reminders.js'; 
 import HelloWorld from './HelloWorld.js';
 import SingleReminder from './SingleReminder.js';
+import NotesApp from './NotesApp.js';
 
 const Stack = createStackNavigator();
 setup();
@@ -17,6 +18,7 @@ export default function App() {
         <Stack.Screen name="Home" component={List} />
         <Stack.Screen name="Reminders" component={Reminders} />
         <Stack.Screen name="SingleReminder" component={SingleReminder} />
+        <Stack.Screen name="NotesApp" component={NotesApp} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -29,6 +31,7 @@ const List = ({navigation}) => {
         data={[
           //{key: "Notes"},
           {key: "Reminders"},
+          {key: "NotesApp"},
           //{key: "Calendar"},
         ]}
         renderItem={({item}) => <Button title={item.key} onPress={() => navigation.navigate(item.key)} />}

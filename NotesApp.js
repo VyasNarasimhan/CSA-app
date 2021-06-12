@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import { KeyboardAvoidingView, Text, View, StyleSheet, Button, ScrollView, TextInput, TouchableOpacity} from 'react-native';
 import {NavigationContainer, useNavigation, useFocusEffect} from '@react-navigation/native';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from 'react-native';
 
 const NotesApp = () => {
 
@@ -12,11 +12,11 @@ const NotesApp = () => {
 
       <Text style={styles.text}>Notes</Text>
       <ScrollView style={styles.contentArea}>
-        <TaskCard internalText='Ingredients for pineapple pizza: pineapple, cheese, ham, flour, and love 🥰' key='1'/>
-        <TaskCard internalText='Make sure to tell exterminator about the animal making noises in the crawl space' key='2'/>
-        <TaskCard internalText='Remember to turn in all late work for Mr. Caudle' key='3'/>
-        <TaskCard internalText="Make sure to study for the AP Calculus and Physics exams - DON'T CRAM LAST MINUTE!" key='4'/>
-        <TaskCard internalText="Ideas for t-shirt: a cat (wearing sunglasses) standing on a burrito covered in cheese and mice" key='5'/>
+        <TaskCard internalText='Ingredients for pineapple pizza: pineapple, cheese, ham, flour, and love 🥰' val='1'/>
+        <TaskCard internalText='Make sure to tell exterminator about the animal making noises in the crawl space' val='2'/>
+        <TaskCard internalText='Remember to turn in all late work for Mr. Caudle' val='3'/>
+        <TaskCard internalText="Make sure to study for the AP Calculus and Physics exams - DON'T CRAM LAST MINUTE!" val='4'/>
+        <TaskCard internalText="Ideas for t-shirt: a cat (wearing sunglasses) standing on a burrito covered in cheese and mice" val='5'/>
         
         
       </ScrollView>
